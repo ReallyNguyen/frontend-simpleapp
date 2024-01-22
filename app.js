@@ -2,9 +2,9 @@ const http = require('http');
 const fs = require('fs');
 const url = require('url')
 
-const tempList = fs.readFileSync(`${__dir}/listview.html`, 'utf-8')
-const tempCard = fs.readFileSync(`${__dir}/eachAnimalInList`, 'utf-8')
-const tempAnimal = fs.readFileSync(`${__dir}/animal.html`, 'utf-8')
+const tempList = fs.readFileSync(`${__dirname}/listview.html`, 'utf-8')
+const tempCard = fs.readFileSync(`${__dirname}/eachAnimalList.html`, 'utf-8')
+const tempAnimal = fs.readFileSync(`${__dirname}/animal.html`, 'utf-8')
 
 const replaceTemplate = (temp, animal) => {
     let output = temp.replace(/{%NAME%}/g, animal.name)
@@ -20,12 +20,12 @@ const server = http.createServer((req, res) => {
     const { query, pathname } = url.parse(req.url, true);
     const pathName = pathname;
     if (pathName === '/listview' || pathname === '/') {
+        const cardsHtml = animalData.map(el => replaceTemplate(tempCard, el)).join('');
+        console.log(cardsHtml)
+        const output = tempList.replace(/{%EACH_ANIMAL%}/, cardsHtml);
         res.writeHead(200, {
             "Content-type": 'text/html'
         })
-        const cardsHtml = animalData.map(el => replaceTemplate(tempCard, el)).join('');
-        console.log(cardsHtml)
-        const output = tempList.replace(`{%EACH_ANIMAL}`, cardsHtml);
         res.end(output);
     } else if (pathname === '/animal') {
         res.writeHead(200, {
@@ -46,8 +46,6 @@ const server = http.createServer((req, res) => {
         })
         res.end('<h3>page not found</h3>')
     }
-
-
 })
 
 const PORT = 3000;
